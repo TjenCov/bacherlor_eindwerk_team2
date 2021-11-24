@@ -1,9 +1,19 @@
 from abc import ABC, abstractmethod
 
+# args = values given as input
+# keys = input names
+def listToKwarg(args, keys):
+    dict = {}
+    # For each input value
+    for i in range(len(args)):
+        # map it to next input port
+        dict[keys[i]] = args[i]
+    return dict
+
+
 """
 Abstract base block
 """
-
 
 # Abstract base class for blocks
 class Block(ABC):
@@ -142,6 +152,10 @@ class MoveBlockParameter(Block):
         return self.function(
             **{"distance": self.distance, "direction": self.direction, "initial": kwargs["initial_coordinates"]})
 
+# Example of compute kwargs construction if you can't hardcode the keys
+def testArgumentConversion():
+    testBlock = PowerBlock()
+    print(testBlock.compute(**listToKwarg([2, 3], testBlock.inputs)))
 
 if __name__ == '__main__':
     block_plus = PowerBlock()
