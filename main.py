@@ -13,9 +13,10 @@ class Block(ABC):
     def __init__(self, function, inputs, can_edit=True):
         self.function = function
         self.inputs = inputs
+        self.ID = None
         # If not editable: is input or output block (part of level)
         self.can_edit = can_edit
-        self.predecessor = None
+        self.predecessors = []
 
     # Use of kwargs allows blocks with any number of inputs to be created
     # If the function called by compute() also supports kwargs, blocks with a
@@ -26,8 +27,14 @@ class Block(ABC):
         pass
 
     def execute(self):
-        input = self.predecessor.execute()
-        return self.compute(input)
+
+        input = []
+        for predecessor in self.predecessors:
+            input.append(predecessor.execute())
+        if input:
+            return self.compute(*input)
+        else:
+            return self.compute()
 
     def add_predecessor(self, block):
         """
@@ -35,7 +42,7 @@ class Block(ABC):
         :param block: the to be added block
         :return:
         """
-        self.predecessor = block
+        self.predecessors.append(block)
 
 """
 Commands. Python does little/no type checking, abstract command class not needed?
