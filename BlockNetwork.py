@@ -22,6 +22,13 @@ class BlockNetwork:
 
         return result
 
+    def _register_block(self, block):
+        block.ID = self._id_counter
+        self._blocks[self._id_counter] = block
+
+        # increase counter
+        self._id_counter += 1
+
     def add_block(self, block, predecessor_id, output=False):
         """
         Adds a block to the network by assigning a pointer from it's desired parentBlock to said block.
@@ -29,19 +36,15 @@ class BlockNetwork:
         :param parentBlock: The block representing the parent(execute caller) of the to be added block
         :return:
         """
-        block.ID = self._id_counter
-        self._blocks[self._id_counter] = block
+
+        if block.ID is None:
+            self._register_block(block)
 
         if output:
             self._outputs.append(block)
         else:
             parent = self._blocks[predecessor_id]
             parent.add_predecessor(block)
-
-
-
-        # increase counter
-        self._id_counter += 1
 
     def remove_block(self, block_id):
         """
@@ -57,19 +60,40 @@ class BlockNetwork:
         for entry in self._blocks.values():
             for predecessor in entry.predecessors:
                 if predecessor.ID == block_id:
-                    entry.predecessors.pop(predecessor)
+                    entry.predecessors.remove(predecessor)
 
 
+    def add_link(self, block_id, predecessor_id):
+        block = self._blocks[block_id]
+        predecessor_block = self._blocks[predecessor_id]
+
+        block.add_predecessor(predecessor_block)
+
+
+    def remove_link(self, block_id, predecessor_id):
+        block = self._blocks[block_id]
+        for predecessor in block.predecessors:
+            if predecessor_id == predecessor.ID:
+                block.predecessors.remove(predecessor)
 
 
 if __name__ == '__main__':
     network = BlockNetwork()
     block_plus = PowerBlock()
+    block_power = PowerBlock()
     block_const_3 = ConstantBlock(value=3)
     block_const_2 = ConstantBlock(value=2)
+    block_const_5 = ConstantBlock(value=5)
     network.add_block(block_plus, 0, True)
+    network.add_block(block_power, 0, True)
     network.add_block(block_const_2, 0)
     network.add_block(block_const_3, 0)
+    network.add_block(block_const_3, 1)
+    network.add_block(block_const_5, 1)
+    network.remove_link(0, 3)
+    network.add_link(0, 3)
+
+
     output = network.exec()
 
     print('end')

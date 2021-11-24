@@ -32,7 +32,7 @@ class Block(ABC):
         for predecessor in self.predecessors:
             input.append(predecessor.execute())
         if input:
-            return self.compute(*input)
+            return self.compute(**{'base': input[0], 'exponent': input[1]})
         else:
             return self.compute()
 
@@ -102,6 +102,8 @@ class PowerBlock(Block):
     def compute(self, **kwargs):
         return self.function(kwargs["base"], kwargs["exponent"])
 
+    def translate_input(self, int1, int2):
+        return {'base': int1, 'exponent': int2}
 
 # Add any amount of numbers
 class PlusBlockAny(Block):
