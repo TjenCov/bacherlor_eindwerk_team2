@@ -42,7 +42,7 @@ class Block(ABC):
         for predecessor in self.predecessors:
             input.append(predecessor.execute())
         if input:
-            return self.compute(**{'base': input[0], 'exponent': input[1]})
+            return self.compute(**listToKwarg(input, self.inputs))
         else:
             return self.compute()
 
