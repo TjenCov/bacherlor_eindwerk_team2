@@ -1,5 +1,5 @@
 import JsonParser
-from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter
+from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter
 
 
 class BlockNetwork:
@@ -7,6 +7,7 @@ class BlockNetwork:
     A class representing a network of executable blocks. The network starts by calling upon the execute of the predecessors
     of the rootBlock and then using their output in its own execution.
     """
+
     def __init__(self):
         self._outputs = []
         self._id_counter = 0
@@ -63,13 +64,11 @@ class BlockNetwork:
                 if predecessor.ID == block_id:
                     entry.predecessors.remove(predecessor)
 
-
     def add_link(self, block_id, predecessor_id):
         block = self._blocks[block_id]
         predecessor_block = self._blocks[predecessor_id]
 
         block.add_predecessor(predecessor_block)
-
 
     def remove_link(self, block_id, predecessor_id):
         block = self._blocks[block_id]
@@ -91,17 +90,30 @@ class BlockNetwork:
         """
         return self._id_counter
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     move_network = BlockNetwork()
-    block_start_position = ConstantBlock(value=[2,3])
-    block_move_right_two = MoveBlockParameter(direction="right",distance=2)
-    move_network.add_block(block_move_right_two,0,True)
+    block_start_position = ConstantBlock(value=[2, 3])
+    block_move_right_two = MoveBlockParameter(direction="right", distance=2)
+    move_network.add_block(block_move_right_two, 0, True)
     move_network.add_block(block_start_position, 0)
     print(move_network.exec())
     JsonParser.write("network2.json", move_network)
-    #new_move_network = JsonParser.read("network2.json")
-    #print(new_move_network.exec())
+    # new_move_network = JsonParser.read("network2.json")
+    # print(new_move_network.exec())
+
+    comparison_network = BlockNetwork()
+    block_const_5 = ConstantBlock(value=5)
+    block_const_3 = ConstantBlock(value=3)
+    block_compare_true = ComparisonBlockParameter(operator=">=")
+    block_compare_false = ComparisonBlockParameter(operator="<")
+    comparison_network.add_block(block_compare_false, 0, True)
+    comparison_network.add_block(block_compare_true, 0, True)
+    comparison_network.add_block(block_const_5, 0)
+    comparison_network.add_block(block_const_3, 0)
+    comparison_network.add_block(block_const_5, 1)
+    comparison_network.add_block(block_const_3, 1)
+    print(comparison_network.exec())
 
     network = BlockNetwork()
     block_plus = PlusBlockAny()

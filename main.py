@@ -67,11 +67,9 @@ Commands. Python does little/no type checking, abstract command class not needed
 def power(base, exponent) -> int:
     return pow(base, exponent)
 
-#Add any amount of numbers
 def division(teller,noemer):
     return teller/noemer
 
-#Add any amount of numbers
 def minus(positief,negatief):
     return positief-negatief
 
@@ -92,6 +90,22 @@ def plus_any_args(**kwargs) -> int:
 # return a given number
 def constant(value):
     return value
+
+def generic_comparison(string_operator, left, right):
+    result = 0
+    if string_operator == "==":
+        result =  left == right
+    elif string_operator == "<=":
+        result = left <= right
+    elif string_operator == ">=":
+        result = left >= right
+    elif string_operator == "!=":
+        result = left != right
+    elif string_operator == "<":
+        result = left < right
+    elif string_operator == ">":
+        result = left > right
+    return int(result)
 
 # kwargs need to contain:
 #    distance (int)
@@ -115,6 +129,15 @@ def move_parameter(**kwargs):
 Implemented blocks
 """
 
+class ComparisonBlockParameter(Block):
+    def __init__(self,function=generic_comparison,inputs=None,operator = "=="):
+        if inputs is None:
+            inputs = ["left","right"]
+        super().__init__(function,inputs)
+        self.operator = operator
+
+    def compute(self, **kwargs):
+        return self.function(self.operator, kwargs["left"],kwargs["right"])
 
 # One number to the power of another number
 class PowerBlock(Block):
