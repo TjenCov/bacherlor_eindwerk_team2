@@ -100,8 +100,8 @@ if __name__ == '__main__':
     move_network.add_block(block_start_position, 0)
     print(move_network.exec())
     JsonParser.write("network2.json", move_network)
-    # new_move_network = JsonParser.read("network2.json")
-    # print(new_move_network.exec())
+    new_move_network = JsonParser.read("network2.json")
+    print(new_move_network.exec())
 
     comparison_network = BlockNetwork()
     block_const_5 = ConstantBlock(value=5)
@@ -115,6 +115,9 @@ if __name__ == '__main__':
     comparison_network.add_block(block_const_5, 1)
     comparison_network.add_block(block_const_3, 1)
     print(comparison_network.exec())
+    JsonParser.write("network3.json", comparison_network)
+    new_comparison_network = JsonParser.read("network3.json")
+    print(new_comparison_network.exec())
 
     conditional_network = BlockNetwork()
     multiplexer_true = MultiplexBlock()
@@ -138,6 +141,9 @@ if __name__ == '__main__':
     conditional_network.add_block(condition_is_true, 0)
     conditional_network.add_block(condition_is_true, 1)
     print(conditional_network.exec())
+    JsonParser.write("network2.json", conditional_network)
+    new_conditional_network = JsonParser.read("network2.json")
+    print(new_conditional_network.exec())
 
     network = BlockNetwork()
     block_plus = PlusBlockAny()
