@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 # args = values given as input
 # keys = input names
 def listToKwarg(args, keys):
@@ -10,9 +11,11 @@ def listToKwarg(args, keys):
         dict[keys[i]] = args[i]
     return dict
 
+
 """
 Abstract base block
 """
+
 
 # Abstract base class for blocks
 class Block(ABC):
@@ -59,19 +62,24 @@ class Block(ABC):
     def getID(self):
         return self.ID
 
+
 """
 Commands. Python does little/no type checking, abstract command class not needed?
 """
+
 
 # Power of base to exponent
 def power(base, exponent) -> int:
     return pow(base, exponent)
 
-def division(teller,noemer):
-    return teller/noemer
 
-def minus(positief,negatief):
-    return positief-negatief
+def division(teller, noemer):
+    return teller / noemer
+
+
+def minus(positief, negatief):
+    return positief - negatief
+
 
 # Multiply any amount of numbers
 def multiply_any_args(**kwargs):
@@ -80,6 +88,7 @@ def multiply_any_args(**kwargs):
         value *= val
     return value
 
+
 # Add any amount of numbers
 def plus_any_args(**kwargs) -> int:
     value = 0
@@ -87,9 +96,11 @@ def plus_any_args(**kwargs) -> int:
         value += val
     return value
 
+
 # return a given number
 def constant(value):
     return value
+
 
 def generic_comparison(string_operator, left, right):
     result = 0
@@ -106,6 +117,7 @@ def generic_comparison(string_operator, left, right):
     elif string_operator == ">":
         result = left > right
     return int(result)
+
 
 # kwargs need to contain:
 #    distance (int)
@@ -124,32 +136,60 @@ def move_parameter(**kwargs):
         initial[1] += multiplier * distance
     return initial
 
+
 def multiplex(selection, **kwargs):
     return kwargs[str(selection)]
+
+def generic_math(operation,in1,in2):
+    result = 0
+    if operation == "+":
+        result = in1 + in2
+    elif operation == "-":
+        result = in1 - in2
+    elif operation == "*":
+        result = in1 * in2
+    elif operation == "/":
+        result = in1 / in2
+    return int(result)
 
 """
 Implemented blocks
 """
 
-# returns the value from the input port that has the same name as the value of selector input
-class MultiplexBlock(Block):
-    def __init__(self,function = multiplex, inputs = None):
+
+# Takes two inputs, executes operation on those inputs. Operation is a parameter in the block.
+class SimpleMathBlock(Block):
+    def __init__(self, function=generic_math, inputs=None, operator="+"):
         if inputs is None:
-            inputs = ["selector","0","1"]
+            inputs = ["in1", "in2"]
         super().__init__(function, inputs)
-
-    def compute(self, **kwargs):
-        return multiplex(kwargs["selector"],**kwargs)
-
-class ComparisonBlockParameter(Block):
-    def __init__(self,function=generic_comparison,inputs=None,operator = "=="):
-        if inputs is None:
-            inputs = ["left","right"]
-        super().__init__(function,inputs)
         self.operator = operator
 
     def compute(self, **kwargs):
-        return self.function(self.operator, kwargs["left"],kwargs["right"])
+        return self.function(self.operator, kwargs["in1"], kwargs["in2"])
+
+# returns the value from the input port that has the same name as the value of selector input. "selector" input port
+# mandatory
+class MultiplexBlock(Block):
+    def __init__(self, function=multiplex, inputs=None):
+        if inputs is None:
+            inputs = ["selector", "0", "1"]
+        super().__init__(function, inputs)
+
+    def compute(self, **kwargs):
+        return multiplex(kwargs["selector"], **kwargs)
+
+
+class ComparisonBlockParameter(Block):
+    def __init__(self, function=generic_comparison, inputs=None, operator="=="):
+        if inputs is None:
+            inputs = ["left", "right"]
+        super().__init__(function, inputs)
+        self.operator = operator
+
+    def compute(self, **kwargs):
+        return self.function(self.operator, kwargs["left"], kwargs["right"])
+
 
 # One number to the power of another number
 class PowerBlock(Block):
@@ -240,4 +280,4 @@ if __name__ == '__main__':
 
     moveupone = MoveBlockParameter()
     print(moveupone.compute(
-        **{"initial_coordinates": [1,1]}))
+        **{"initial_coordinates": [1, 1]}))
