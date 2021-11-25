@@ -92,6 +92,17 @@ class BlockNetwork:
         return self._id_counter
 
 if __name__ == '__main__':
+
+    move_network = BlockNetwork()
+    block_start_position = ConstantBlock(value=[2,3])
+    block_move_right_two = MoveBlockParameter(direction="right",distance=2)
+    move_network.add_block(block_move_right_two,0,True)
+    move_network.add_block(block_start_position, 0)
+    print(move_network.exec())
+    JsonParser.write("network2.json", move_network)
+    #new_move_network = JsonParser.read("network2.json")
+    #print(new_move_network.exec())
+
     network = BlockNetwork()
     block_plus = PlusBlockAny()
     block_power = PowerBlock()

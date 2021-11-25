@@ -10,7 +10,6 @@ def listToKwarg(args, keys):
         dict[keys[i]] = args[i]
     return dict
 
-
 """
 Abstract base block
 """
@@ -68,6 +67,20 @@ Commands. Python does little/no type checking, abstract command class not needed
 def power(base, exponent) -> int:
     return pow(base, exponent)
 
+#Add any amount of numbers
+def division(teller,noemer):
+    return teller/noemer
+
+#Add any amount of numbers
+def minus(positief,negatief):
+    return positief-negatief
+
+# Multiply any amount of numbers
+def multiply_any_args(**kwargs):
+    value = 1
+    for name, val in kwargs.items():
+        value *= val
+    return value
 
 # Add any amount of numbers
 def plus_any_args(**kwargs) -> int:
@@ -76,11 +89,9 @@ def plus_any_args(**kwargs) -> int:
         value += val
     return value
 
-
 # return a given number
-def constant(value) -> int:
+def constant(value):
     return value
-
 
 # kwargs need to contain:
 #    distance (int)
@@ -114,13 +125,31 @@ class PowerBlock(Block):
             inputs = ["base", "exponent"]
         super().__init__(function, inputs)
 
-
     # Input names matter here, as base and exponent do not have the same role in the calculation
     def compute(self, **kwargs):
         return self.function(kwargs["base"], kwargs["exponent"])
 
     def translate_input(self, int1, int2):
         return {'base': int1, 'exponent': int2}
+
+
+# One number to the power of another number
+class PowerBlockParameter(Block):
+    # By default (should always be the case), this block can calculate power of two numbers (function)
+    # and has one input named base.
+    def __init__(self, function=power, inputs=None, exponent=2):
+        if inputs is None:
+            inputs = ["base"]
+        super().__init__(function, inputs)
+        self.exponent = exponent
+
+    # Input names matter here, as base and exponent do not have the same role in the calculation
+    def compute(self, **kwargs):
+        return self.function(kwargs["base"], self.exponent)
+
+    def translate_input(self, int1, int2):
+        return {'base': int1, 'exponent': int2}
+
 
 # Add any amount of numbers
 class PlusBlockAny(Block):
@@ -162,10 +191,6 @@ class MoveBlockParameter(Block):
         return self.function(
             **{"distance": self.distance, "direction": self.direction, "initial": kwargs["initial_coordinates"]})
 
-# Example of compute kwargs construction if you can't hardcode the keys
-def testArgumentConversion():
-    testBlock = PowerBlock()
-    print(testBlock.compute(**listToKwarg([2, 3], testBlock.inputs)))
 
 if __name__ == '__main__':
     block_plus = PowerBlock()
