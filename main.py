@@ -94,7 +94,7 @@ def constant(value):
 def generic_comparison(string_operator, left, right):
     result = 0
     if string_operator == "==":
-        result =  left == right
+        result = left == right
     elif string_operator == "<=":
         result = left <= right
     elif string_operator == ">=":
@@ -124,10 +124,22 @@ def move_parameter(**kwargs):
         initial[1] += multiplier * distance
     return initial
 
+def multiplex(selection, **kwargs):
+    return kwargs[str(selection)]
 
 """
 Implemented blocks
 """
+
+# returns the value from the input port that has the same name as the value of selector input
+class MultiplexBlock(Block):
+    def __init__(self,function = multiplex, inputs = None):
+        if inputs is None:
+            inputs = ["selector","0","1"]
+        super().__init__(function, inputs)
+
+    def compute(self, **kwargs):
+        return multiplex(kwargs["selector"],**kwargs)
 
 class ComparisonBlockParameter(Block):
     def __init__(self,function=generic_comparison,inputs=None,operator = "=="):

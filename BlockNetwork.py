@@ -1,5 +1,6 @@
 import JsonParser
-from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter
+from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter, \
+    MultiplexBlock
 
 
 class BlockNetwork:
@@ -114,6 +115,29 @@ if __name__ == '__main__':
     comparison_network.add_block(block_const_5, 1)
     comparison_network.add_block(block_const_3, 1)
     print(comparison_network.exec())
+
+    conditional_network = BlockNetwork()
+    multiplexer_true = MultiplexBlock()
+    multiplexer_false = MultiplexBlock()
+    input1_val5 = ConstantBlock(value=5)
+    input2_val3 = ConstantBlock(value=3)
+    block_compare_true = ComparisonBlockParameter(operator="!=")
+    block_compare_false = ComparisonBlockParameter(operator="==")
+    condition_is_true = ConstantBlock(value="True")
+    condition_is_false = ConstantBlock(value="False")
+    conditional_network.add_block(multiplexer_true, 0, True)  # 0
+    conditional_network.add_block(multiplexer_false, 0, True)  # 1
+    conditional_network.add_block(block_compare_true, 0)  # 2
+    conditional_network.add_block(block_compare_false, 1)  # 3
+    conditional_network.add_block(input1_val5, 2)
+    conditional_network.add_block(input2_val3, 2)
+    conditional_network.add_block(input1_val5, 3)
+    conditional_network.add_block(input2_val3, 3)
+    conditional_network.add_block(condition_is_false, 0)
+    conditional_network.add_block(condition_is_false, 1)
+    conditional_network.add_block(condition_is_true, 0)
+    conditional_network.add_block(condition_is_true, 1)
+    print(conditional_network.exec())
 
     network = BlockNetwork()
     block_plus = PlusBlockAny()
