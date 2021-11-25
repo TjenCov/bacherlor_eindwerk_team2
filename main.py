@@ -54,6 +54,12 @@ class Block(ABC):
         """
         self.predecessors.append(block)
 
+    def getPredecessors(self):
+        return self.predecessors
+
+    def getID(self):
+        return self.ID
+
 """
 Commands. Python does little/no type checking, abstract command class not needed?
 """
@@ -108,6 +114,7 @@ class PowerBlock(Block):
             inputs = ["base", "exponent"]
         super().__init__(function, inputs)
 
+
     # Input names matter here, as base and exponent do not have the same role in the calculation
     def compute(self, **kwargs):
         return self.function(kwargs["base"], kwargs["exponent"])
@@ -137,6 +144,9 @@ class ConstantBlock(Block):
     # Additional class variables can be passed to the function of the block
     def compute(self, **kwargs):
         return self.function(self.value)
+
+    def getValue(self):
+        return self.value
 
 
 # Uses parameters set in the block to determine direction/distance, only uses input to receive initial coordinates

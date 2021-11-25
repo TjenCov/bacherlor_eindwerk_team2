@@ -1,4 +1,5 @@
-from main import Block, PowerBlock, ConstantBlock, PlusBlockAny
+import JsonParser
+from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter
 
 
 class BlockNetwork:
@@ -76,14 +77,28 @@ class BlockNetwork:
             if predecessor_id == predecessor.ID:
                 block.predecessors.remove(predecessor)
 
+    def getOutputs(self):
+        """
+        Getter for the outputs variable
+        :return: list of Blocks
+        """
+        return self._outputs
+
+    def getId_counter(self):
+        """
+        Getter for the id_counter variable
+        :return: integer
+        """
+        return self._id_counter
 
 if __name__ == '__main__':
     network = BlockNetwork()
-    block_plus = PowerBlock()
+    block_plus = PlusBlockAny()
     block_power = PowerBlock()
     block_const_3 = ConstantBlock(value=3)
     block_const_2 = ConstantBlock(value=2)
     block_const_5 = ConstantBlock(value=5)
+
     network.add_block(block_plus, 0, True)
     network.add_block(block_power, 0, True)
     network.add_block(block_const_2, 0)
@@ -93,7 +108,10 @@ if __name__ == '__main__':
     network.remove_link(0, 3)
     network.add_link(0, 3)
 
-
+    JsonParser.write("network.json", network)
+    newnetwork = JsonParser.read("network.json")
+    newoutput = newnetwork.exec()
     output = network.exec()
-
+    print(output)
+    print(newoutput)
     print('end')
