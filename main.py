@@ -189,6 +189,8 @@ class ComparisonBlockParameter(Block):
 
     def compute(self, **kwargs):
         return self.function(self.operator, kwargs["left"], kwargs["right"])
+    def getOperator(self):
+        return self.operator
 
 
 # One number to the power of another number
@@ -265,6 +267,10 @@ class MoveBlockParameter(Block):
     def compute(self, **kwargs):
         return self.function(
             **{"distance": self.distance, "direction": self.direction, "initial": kwargs["initial_coordinates"]})
+    def getDirection(self):
+        return self.direction
+    def getDistance(self):
+        return self.distance
 
 
 if __name__ == '__main__':

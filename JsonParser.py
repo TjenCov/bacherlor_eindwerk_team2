@@ -30,6 +30,13 @@ def writeNetwork(block):
     if type(block).__name__ == "ConstantBlock":
         datadict["value"] = block.getValue()
         return datadict
+    elif type(block).__name__ == "MoveBlockParameter":
+        datadict["distance"] = block.getDistance()
+        datadict["direction"] = block.getDirection()
+
+    elif type(block).__name__ == "ComparisonBlockParameter":
+        datadict["operator"] = block.getOperator()
+
     returnlist = []
     for predecessor in block.getPredecessors():
         returnlist.append(writeNetwork(predecessor))
@@ -50,6 +57,7 @@ def read(filename: str):
 
         for starterBlock in data[f"networklist"]:
             network = readNetwork(starterBlock, network, -1)
+    IDdict.clear()
     return network
 
 
@@ -66,7 +74,7 @@ def readNetwork(starterBlock, network, networkid):
     if id in IDdict:
         block = IDdict[id]
         network.add_block(block, networkid, outputbool)
-        return
+        return network
     else:
 
         if starterBlock["name"] == "ConstantBlock":
@@ -74,6 +82,14 @@ def readNetwork(starterBlock, network, networkid):
             network.add_block(block, networkid, outputbool)
             IDdict[id] = block
             return network
+        elif starterBlock["name"] == "ComparisonBlockParameter":
+            block = getattr(BlockNetwork, starterBlock["name"])(operator=starterBlock["operator"])
+            network.add_block(block, networkid, outputbool)
+            IDdict[id] = block
+        elif starterBlock["name"] == "ComparisonBlockParameter":
+            block = getattr(BlockNetwork, starterBlock["name"])(direction=starterBlock["direction"], distance=starterBlock["distance"])
+            network.add_block(block, networkid, outputbool)
+            IDdict[id] = block
         else:
             block = getattr(BlockNetwork, starterBlock["name"])()
             network.add_block(block, networkid, outputbool)
