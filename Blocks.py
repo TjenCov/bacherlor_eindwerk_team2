@@ -273,6 +273,16 @@ class MoveBlockParameter(Block):
         return self.distance
 
 
+class MoveBlockInput(Block):
+    def __init__(self, function=move_parameter, inputs=None):
+        if inputs is None:
+            inputs = ["initial_coordinates","direction","distance"]
+        super().__init__(function, inputs)
+
+    def compute(self, **kwargs):
+        return self.function(
+            **{"distance": kwargs["distance"], "direction": kwargs["direction"], "initial": kwargs["initial_coordinates"]})
+
 if __name__ == '__main__':
     block_plus = PowerBlock()
     block_const_3 = ConstantBlock(value=3)
