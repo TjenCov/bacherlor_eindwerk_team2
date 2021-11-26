@@ -59,6 +59,10 @@ class BlockNetwork:
         # delete block from network
         del self._blocks[block_id]
 
+        for block in self._outputs:
+            if block.ID == block_id:
+                self._outputs.remove(block)
+
         # delete block from predecessor lists
         for entry in self._blocks.values():
             for predecessor in entry.predecessors:
