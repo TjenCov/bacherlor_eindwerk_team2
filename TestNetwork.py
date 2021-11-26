@@ -1,5 +1,5 @@
 from BlockNetwork import BlockNetwork
-from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter
+from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter
 
 def test_addition():
     network = BlockNetwork()

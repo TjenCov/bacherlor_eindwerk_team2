@@ -1,5 +1,5 @@
 import JsonParser
-from main import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter, \
+from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter, \
     MultiplexBlock
 
 
