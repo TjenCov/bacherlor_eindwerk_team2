@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 
 
-# args = values given as input
-# keys = input names
+# Assuming that the input port names of a block are not known, but the order in which inputs are given to the block is
+# known, this function converts the list of input values to a dictionary {input_name : input_value}.
+# args = values that a block receives as input (list)
+# keys = block input port names (list of strings)
+# It is assumed that args and keys have the same length
 def listToKwarg(args, keys):
     dict = {}
     # For each input value
@@ -10,6 +13,8 @@ def listToKwarg(args, keys):
         # map it to next input port
         dict[keys[i]] = args[i]
     return dict
+
+
 
 
 """
@@ -282,6 +287,7 @@ class MoveBlockInput(Block):
     def compute(self, **kwargs):
         return self.function(
             **{"distance": kwargs["distance"], "direction": kwargs["direction"], "initial": kwargs["initial_coordinates"]})
+
 
 if __name__ == '__main__':
     block_plus = PowerBlock()
