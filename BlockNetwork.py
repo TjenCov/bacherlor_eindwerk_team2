@@ -102,9 +102,9 @@ if __name__ == '__main__':
     block_move_right_two = MoveBlockParameter(direction="right", distance=2)
     move_network.add_block(block_move_right_two, 0, True)
     move_network.add_block(block_start_position, 0)
+    JsonParser.write("network4.json", move_network)
     print(move_network.exec())
-    JsonParser.write("network2.json", move_network)
-    new_move_network = JsonParser.read("network2.json")
+    new_move_network = JsonParser.read("network4.json")
     print(new_move_network.exec())
 
     comparison_network = BlockNetwork()
@@ -118,8 +118,8 @@ if __name__ == '__main__':
     comparison_network.add_block(block_const_3, 0)
     comparison_network.add_block(block_const_5, 1)
     comparison_network.add_block(block_const_3, 1)
-    print(comparison_network.exec())
     JsonParser.write("network3.json", comparison_network)
+    print(comparison_network.exec())
     new_comparison_network = JsonParser.read("network3.json")
     print(new_comparison_network.exec())
 
@@ -144,8 +144,8 @@ if __name__ == '__main__':
     conditional_network.add_block(condition_is_false, 1)
     conditional_network.add_block(condition_is_true, 0)
     conditional_network.add_block(condition_is_true, 1)
-    print(conditional_network.exec())
     JsonParser.write("network2.json", conditional_network)
+    print(conditional_network.exec())
     new_conditional_network = JsonParser.read("network2.json")
     print(new_conditional_network.exec())
 

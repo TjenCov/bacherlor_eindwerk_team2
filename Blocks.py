@@ -173,6 +173,10 @@ class SimpleMathBlock(Block):
     def compute(self, **kwargs):
         return self.function(self.operator, kwargs["in1"], kwargs["in2"])
 
+    def getOperator(self):
+        return self.operator
+
+
 # returns the value from the input port that has the same name as the value of selector input. "selector" input port
 # mandatory
 class MultiplexBlock(Block):
@@ -194,6 +198,7 @@ class ComparisonBlockParameter(Block):
 
     def compute(self, **kwargs):
         return self.function(self.operator, kwargs["left"], kwargs["right"])
+
     def getOperator(self):
         return self.operator
 
@@ -231,6 +236,9 @@ class PowerBlockParameter(Block):
 
     def translate_input(self, int1, int2):
         return {'base': int1, 'exponent': int2}
+
+    def getExponent(self):
+        return self.exponent
 
 
 # Add any amount of numbers
@@ -272,8 +280,10 @@ class MoveBlockParameter(Block):
     def compute(self, **kwargs):
         return self.function(
             **{"distance": self.distance, "direction": self.direction, "initial": kwargs["initial_coordinates"]})
+
     def getDirection(self):
         return self.direction
+
     def getDistance(self):
         return self.distance
 

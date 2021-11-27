@@ -34,8 +34,11 @@ def writeNetwork(block):
         datadict["distance"] = block.getDistance()
         datadict["direction"] = block.getDirection()
 
-    elif type(block).__name__ == "ComparisonBlockParameter":
+    elif type(block).__name__ == ("ComparisonBlockParameter" or "SimpleMathBlock"):
         datadict["operator"] = block.getOperator()
+
+    elif type(block).__name__ == "PowerBlockParameter":
+        datadict["exponent"] = block.getExponent()
 
     returnlist = []
     for predecessor in block.getPredecessors():
@@ -82,24 +85,24 @@ def readNetwork(starterBlock, network, networkid):
             network.add_block(block, networkid, outputbool)
             IDdict[id] = block
             return network
-        elif starterBlock["name"] == "ComparisonBlockParameter":
+        elif starterBlock["name"] == ("ComparisonBlockParameter" or "SimpleMathBlock"):
             block = getattr(BlockNetwork, starterBlock["name"])(operator=starterBlock["operator"])
-            network.add_block(block, networkid, outputbool)
-            IDdict[id] = block
-        elif starterBlock["name"] == "ComparisonBlockParameter":
+
+        elif starterBlock["name"] == "MoveBlockParameter":
             block = getattr(BlockNetwork, starterBlock["name"])(direction=starterBlock["direction"], distance=starterBlock["distance"])
-            network.add_block(block, networkid, outputbool)
-            IDdict[id] = block
+
+        elif starterBlock["name"] == "MoveBlockParameter":
+            block = getattr(BlockNetwork, starterBlock["name"])(exponent=starterBlock["exponent"])
+
         else:
             block = getattr(BlockNetwork, starterBlock["name"])()
-            network.add_block(block, networkid, outputbool)
-            IDdict[id] = block
 
-    blocklist = []
+    network.add_block(block, networkid, outputbool)
+    IDdict[id] = block
 
     idcounter = network.getId_counter() - 1
     for predecessor in starterBlock["predecessors"]:
-        blocklist.append(readNetwork(predecessor, network, idcounter))
+        network = readNetwork(predecessor, network, idcounter)
     return network
 
 
