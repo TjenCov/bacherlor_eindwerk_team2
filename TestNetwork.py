@@ -1,5 +1,5 @@
 from BlockNetwork import BlockNetwork
-from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter
+from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter
 
 def test_addition():
     network = BlockNetwork()
@@ -130,12 +130,32 @@ def test_all():
     print("EXPEDTED OUTPUT: [841]", "\tNETWORK OUTPUT:", network.exec())
     print("\n#######################################################################################################\n")
 
+def test_comparison():
+    network = BlockNetwork()
+
+    print("\n#######################################################################################################\n")
+    print("=== TESTING 5 == 10 ===")
+    block_comp = ComparisonBlockParameter()
+    block_const_5 = ConstantBlock(value=5)
+    block_const_10 = ConstantBlock(value=10)
+
+    print("\t- Added comparison block to network")
+    network.add_block(block_comp, 0, True)
+    print("\t- Added constant 5 block to network")
+    network.add_block(block_const_5, block_comp.ID)
+    print("\t- Added constant 10 block to network")
+    network.add_block(block_const_10, block_comp.ID)
+
+    print("EXPEDTED OUTPUT: [0]", "\tNETWORK OUTPUT:", network.exec())
+    print("\n#######################################################################################################\n")
+
 
 if __name__ == '__main__':
     test_addition()
     test_removal_block_link()
     test_pow()
-    #test_move()
+    test_move()
     test_all()
+    test_comparison()
 
 
