@@ -1,19 +1,20 @@
 from abc import ABC, abstractmethod
 
 
-# Assuming that the input port names of a block are not known, but the order in which inputs are given to the block is
-# known, this function converts the list of input values to a dictionary {input_name : input_value}.
-# args = values that a block receives as input (list)
-# keys = block input port names (list of strings)
-# It is assumed that args and keys have the same length
 def listToKwarg(args, keys):
+    """
+    Assuming that the input port names of a block are not known, but the order in which inputs are given to the block is
+    known, this function converts the list of input values to a dictionary {input_name : input_value}.
+    It is assumed that args and keys have the same length
+    param args: values that a block receives as input (list)
+    param keys: block input port names (list of strings)
+    """
     dict = {}
     # For each input value
     for i in range(len(args)):
         # map it to next input port
         dict[keys[i]] = args[i]
     return dict
-
 
 
 
@@ -69,45 +70,73 @@ class Block(ABC):
 
 
 """
-Commands. Python does little/no type checking, abstract command class not needed?
+Commands
 """
 
 
-# Power of base to exponent
-def power(base, exponent) -> int:
+def power(base, exponent):
+    """
+    Power of base to exponent
+    pow(base,exponent)
+    param base: base number of the power operation
+    param exponent: exponent of the power operation
+    """
     return pow(base, exponent)
 
-
 def division(teller, noemer):
+    """
+    Simple division between two numbers: teller/noemer
+    param teller: number to be divided
+    param noemer: number to be divided by
+    """
     return teller / noemer
 
 
 def minus(positief, negatief):
+    """
+    Simple minus: positief-negatief
+    """
     return positief - negatief
 
 
-# Multiply any amount of numbers
 def multiply_any_args(**kwargs):
+    """
+    Multiply any amount of numbers
+    param **kwargs: keys irrelevant, values are the numbers that should be multiplied with each other
+    """
     value = 1
     for name, val in kwargs.items():
         value *= val
     return value
 
 
-# Add any amount of numbers
-def plus_any_args(**kwargs) -> int:
+def plus_any_args(**kwargs):
+    """"
+    Add any amount of numbers
+    param **kwargs: keys irrelevant, values are the numbers that should be added to each other
+    """
     value = 0
     for name, val in kwargs.items():
         value += val
     return value
 
 
-# return a given number
 def constant(value):
+    """
+    Returns given value of any type. While this function is functionally very simple, it is implemented to make sure
+    that blocks follow the command pattern.
+    param value: return this value
+    """
     return value
 
 
-def generic_comparison(string_operator, left, right):
+def simple_comparison(string_operator, left, right):
+    """
+    Compares two values according to an operator
+    param string_operator: string that contains the comparison operator.
+    param left: value on the left hand side of the comparison
+    param right: value on the right hand side of the comparison
+    """
     result = 0
     if string_operator == "==":
         result = left == right
@@ -124,11 +153,14 @@ def generic_comparison(string_operator, left, right):
     return int(result)
 
 
-# kwargs need to contain:
-#    distance (int)
-#    direction (up, down, left, right, none (as string))
-#    initial (int,int)
 def move_parameter(**kwargs):
+    """
+    Given an initial 2D position, moves from that position
+    param **kwargs: needs to contain:
+        distance (int): distance to move
+        direction ("up", "down", "left", "right"): direction to move
+        initial (int,int): starting position to move from
+    """
     distance = kwargs.get("distance", 1)
     direction = kwargs.get("direction")
     initial = kwargs.get("initial")
@@ -143,9 +175,24 @@ def move_parameter(**kwargs):
 
 
 def multiplex(selection, **kwargs):
+    """
+    Receives a selector input and an arbitrary amount of other inputs. The selector input decides which other input
+    to output.
+    param selection: string containing name of input port containing desired output
+    param **kwargs:
+        keys: input port names. selection will try to match one of these.
+        values: value to be returned if key matches
+    """
     return kwargs[str(selection)]
 
+
 def generic_math(operation,in1,in2):
+    """
+    Does any of +,-,*,/
+    param string_operator: string that contains the operation.
+    param left: value on the left hand side of the operation
+    param right: value on the right hand side of the operation
+    """
     result = 0
     if operation == "+":
         result = in1 + in2
@@ -190,7 +237,7 @@ class MultiplexBlock(Block):
 
 
 class ComparisonBlockParameter(Block):
-    def __init__(self, function=generic_comparison, inputs=None, operator="=="):
+    def __init__(self, function=simple_comparison, inputs=None, operator="=="):
         if inputs is None:
             inputs = ["left", "right"]
         super().__init__(function, inputs)
