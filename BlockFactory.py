@@ -1,5 +1,6 @@
 import BlockNetwork
 import Blocks
+from abc import ABC, abstractmethod
 # from enum import Enum, auto
 
 
@@ -28,32 +29,35 @@ class BlockFactory:
     Class that uses the factory design pattern to create Block objects
     """
     def __init__(self):
-        # a dictionary of different known block classes
-        # TODO: MINUS,MUL,DIV,LT,LTE,... moeten mss een apart blok zijn om callable te zijn
+        # a dictionary of different known block classes, and extra operator if necessary
         self._block_classes = {
-            "CONSTANT": Blocks.ConstantBlock,
-            "PLUS": Blocks.PlusBlockAny,
-            "MINUS": Blocks.SimpleMathBlock,
-            "MUL": Blocks.SimpleMathBlock,
-            "DIV": Blocks.SimpleMathBlock,
-            "POWER": Blocks.PowerBlock,
-            "LT": Blocks.ComparisonBlockParameter,
-            "LTE": Blocks.ComparisonBlockParameter,
-            "GT": Blocks.ComparisonBlockParameter,
-            "GTE": Blocks.ComparisonBlockParameter,
-            "EQ": Blocks.ComparisonBlockParameter,
-            "NEQ": Blocks.ComparisonBlockParameter,
-            "MOVE": Blocks.MoveBlockParameter,
-            "MULTIPLEX": Blocks.MultiplexBlock,
+            "CONSTANT": (Blocks.ConstantBlock,),
+            "PLUS": (Blocks.PlusBlockAny,),
+            "MINUS": (Blocks.SimpleMathBlock, "-"),
+            "MUL": (Blocks.SimpleMathBlock, "*"),
+            "DIV": (Blocks.SimpleMathBlock, "/"),
+            "POWER": (Blocks.PowerBlock,),
+            "LT": (Blocks.ComparisonBlockParameter, "<"),
+            "LTE": (Blocks.ComparisonBlockParameter, "<="),
+            "GT": (Blocks.ComparisonBlockParameter, ">"),
+            "GTE": (Blocks.ComparisonBlockParameter, ">="),
+            "EQ": (Blocks.ComparisonBlockParameter, "=="),
+            "NEQ": (Blocks.ComparisonBlockParameter, "!="),
+            "MOVE": (Blocks.MoveBlockParameter,),
+            "MULTIPLEX": (Blocks.MultiplexBlock,),
         }
 
-    def register_block_class(self, key: str, block_class: Blocks) -> None:
+    def register_block_class(self, key: str, block_class) -> None:
         """
         Register a new type of Block to the factory
         param key: the "name" of your block,
-        param block_class: the class which "builds" your block
+        param block_class: a tuple of (class that implements your block derived from Block,   extra operator parameter)
+        note: if block_class is not inside a tuple, it will be put inside one
         """
-        self._block_classes[key] = block_class
+        bc = block_class
+        if type(bc) != tuple:
+            bc = (bc,)
+        self._block_classes[key] = bc
 
     def create_block(self, block_type: str, **kwargs) -> Blocks:
         """
@@ -61,11 +65,30 @@ class BlockFactory:
         param block_type: the type of block to create
         param **kwargs: input args that the block uses
         """
-        block = self._block_classes.get(block_type)
-        if not block:
+        blocktuple = self._block_classes.get(block_type)
+        if not blocktuple:
             e = '"' + str(block_type) + "\" is not a registered block type in the BlockFactory"
             raise KeyError(e)
-        return block(**kwargs)
+        if len(blocktuple) > 1:
+            return blocktuple[0](operator=blocktuple[1], **kwargs)
+        else:
+            return blocktuple[0](**kwargs)
+
+
+# class BlockBuilder(ABC):
+#     @abstractmethod
+#     def create_block(self):
+#         pass
+#
+#
+# class ConstantBlockBuilder(BlockBuilder):
+#     def create_block(self, **kwargs):
+#         return Blocks.ConstantBlock(**kwargs)
+#
+#
+# class MinusBlockBuilder(BlockBuilder):
+#     def create_block(self, **kwargs):
+#         return Blocks.SimpleMathBlock(Blocks.minus, **kwargs)
 
 
 def test_block_factory() -> int:
