@@ -1,6 +1,5 @@
 import BlockNetwork
 import Blocks
-from abc import ABC, abstractmethod
 # from enum import Enum, auto
 
 
@@ -75,27 +74,14 @@ class BlockFactory:
             return blocktuple[0](**kwargs)
 
 
-# class BlockBuilder(ABC):
-#     @abstractmethod
-#     def create_block(self):
-#         pass
-#
-#
-# class ConstantBlockBuilder(BlockBuilder):
-#     def create_block(self, **kwargs):
-#         return Blocks.ConstantBlock(**kwargs)
-#
-#
-# class MinusBlockBuilder(BlockBuilder):
-#     def create_block(self, **kwargs):
-#         return Blocks.SimpleMathBlock(Blocks.minus, **kwargs)
-
-
 def test_block_factory() -> int:
     # Function that tests blocks to see if they correctly generate
     print("## Starting test BlockFactory")
     # -- TEST INDIVIDUAL BLOCKS
     f = BlockFactory()
+    f.register_block_class("MACHT", Blocks.PowerBlock)
+    b_macht = f.create_block("MACHT")
+    assert(type(b_macht) == Blocks.PowerBlock)
 
     c_1 = f.create_block("CONSTANT", value=2)
     assert(type(c_1) == Blocks.ConstantBlock)
@@ -118,6 +104,17 @@ def test_block_factory() -> int:
     neq = f.create_block("NEQ")
     mv = f.create_block("MOVE")
     multiplex = f.create_block("MULTIPLEX")
+
+    # -- TEST DIVISION NETWORK --
+    network = BlockNetwork.BlockNetwork()
+    block_div = f.create_block("DIV")
+    block_10 = f.create_block("CONSTANT", value=10)
+    block_5 = f.create_block("CONSTANT", value=5)
+
+    network.add_block(block_div, 0, True)
+    network.add_block(block_10, 0)
+    network.add_block(block_5, 0)
+    assert(network.exec()[0] == 2)
 
     # -- TEST POW NETWORK --
     network = BlockNetwork.BlockNetwork()
