@@ -28,32 +28,35 @@ class BlockFactory:
     Class that uses the factory design pattern to create Block objects
     """
     def __init__(self):
-        # a dictionary of different known block classes
-        # TODO: MINUS,MUL,DIV,LT,LTE,... moeten mss een apart blok zijn om callable te zijn
+        # a dictionary of different known block classes, and extra operator if necessary
         self._block_classes = {
-            "CONSTANT": Blocks.ConstantBlock,
-            "PLUS": Blocks.PlusBlockAny,
-            "MINUS": Blocks.SimpleMathBlock,
-            "MUL": Blocks.SimpleMathBlock,
-            "DIV": Blocks.SimpleMathBlock,
-            "POWER": Blocks.PowerBlock,
-            "LT": Blocks.ComparisonBlockParameter,
-            "LTE": Blocks.ComparisonBlockParameter,
-            "GT": Blocks.ComparisonBlockParameter,
-            "GTE": Blocks.ComparisonBlockParameter,
-            "EQ": Blocks.ComparisonBlockParameter,
-            "NEQ": Blocks.ComparisonBlockParameter,
-            "MOVE": Blocks.MoveBlockParameter,
-            "MULTIPLEX": Blocks.MultiplexBlock,
+            "CONSTANT": (Blocks.ConstantBlock,),
+            "PLUS": (Blocks.PlusBlockAny,),
+            "MINUS": (Blocks.SimpleMathBlock, "-"),
+            "MUL": (Blocks.SimpleMathBlock, "*"),
+            "DIV": (Blocks.SimpleMathBlock, "/"),
+            "POWER": (Blocks.PowerBlock,),
+            "LT": (Blocks.ComparisonBlockParameter, "<"),
+            "LTE": (Blocks.ComparisonBlockParameter, "<="),
+            "GT": (Blocks.ComparisonBlockParameter, ">"),
+            "GTE": (Blocks.ComparisonBlockParameter, ">="),
+            "EQ": (Blocks.ComparisonBlockParameter, "=="),
+            "NEQ": (Blocks.ComparisonBlockParameter, "!="),
+            "MOVE": (Blocks.MoveBlockParameter,),
+            "MULTIPLEX": (Blocks.MultiplexBlock,),
         }
 
-    def register_block_class(self, key: str, block_class: Blocks) -> None:
+    def register_block_class(self, key: str, block_class) -> None:
         """
         Register a new type of Block to the factory
         param key: the "name" of your block,
-        param block_class: the class which "builds" your block
+        param block_class: a tuple of (class that implements your block derived from Block,   extra operator parameter)
+        note: if block_class is not inside a tuple, it will be put inside one
         """
-        self._block_classes[key] = block_class
+        bc = block_class
+        if type(bc) != tuple:
+            bc = (bc,)
+        self._block_classes[key] = bc
 
     def create_block(self, block_type: str, **kwargs) -> Blocks:
         """
@@ -61,11 +64,14 @@ class BlockFactory:
         param block_type: the type of block to create
         param **kwargs: input args that the block uses
         """
-        block = self._block_classes.get(block_type)
-        if not block:
+        blocktuple = self._block_classes.get(block_type)
+        if not blocktuple:
             e = '"' + str(block_type) + "\" is not a registered block type in the BlockFactory"
             raise KeyError(e)
-        return block(**kwargs)
+        if len(blocktuple) > 1:
+            return blocktuple[0](operator=blocktuple[1], **kwargs)
+        else:
+            return blocktuple[0](**kwargs)
 
 
 def test_block_factory() -> int:
@@ -73,6 +79,9 @@ def test_block_factory() -> int:
     print("## Starting test BlockFactory")
     # -- TEST INDIVIDUAL BLOCKS
     f = BlockFactory()
+    f.register_block_class("MACHT", Blocks.PowerBlock)
+    b_macht = f.create_block("MACHT")
+    assert(type(b_macht) == Blocks.PowerBlock)
 
     c_1 = f.create_block("CONSTANT", value=2)
     assert(type(c_1) == Blocks.ConstantBlock)
@@ -95,6 +104,17 @@ def test_block_factory() -> int:
     neq = f.create_block("NEQ")
     mv = f.create_block("MOVE")
     multiplex = f.create_block("MULTIPLEX")
+
+    # -- TEST DIVISION NETWORK --
+    network = BlockNetwork.BlockNetwork()
+    block_div = f.create_block("DIV")
+    block_10 = f.create_block("CONSTANT", value=10)
+    block_5 = f.create_block("CONSTANT", value=5)
+
+    network.add_block(block_div, 0, True)
+    network.add_block(block_10, 0)
+    network.add_block(block_5, 0)
+    assert(network.exec()[0] == 2)
 
     # -- TEST POW NETWORK --
     network = BlockNetwork.BlockNetwork()
