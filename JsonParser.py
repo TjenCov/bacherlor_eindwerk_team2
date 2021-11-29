@@ -43,7 +43,9 @@ def writeNetwork(block):
         datadict["distance"] = block.getDistance()
         datadict["direction"] = block.getDirection()
 
-    elif type(block).__name__ == ("ComparisonBlockParameter" or "SimpleMathBlock"):
+    elif type(block).__name__ == "ComparisonBlockParameter":
+        datadict["operator"] = block.getOperator()
+    elif type(block).__name__ == "SimpleMathBlock":
         datadict["operator"] = block.getOperator()
 
     elif type(block).__name__ == "PowerBlockParameter":
@@ -102,7 +104,10 @@ def readNetwork(starterBlock, network, networkid):
             network.add_block(block, networkid, outputbool)
             IDdict[id] = block
             return network
-        elif starterBlock["name"] == ("ComparisonBlockParameter" or "SimpleMathBlock"):
+        elif starterBlock["name"] == "SimpleMathBlock":
+            block = getattr(BlockNetwork, starterBlock["name"])(operator=starterBlock["operator"])
+
+        elif starterBlock["name"] == "ComparisonBlockParameter":
             block = getattr(BlockNetwork, starterBlock["name"])(operator=starterBlock["operator"])
 
         elif starterBlock["name"] == "MoveBlockParameter":

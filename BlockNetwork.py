@@ -1,6 +1,6 @@
 import JsonParser
 from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter, \
-    MultiplexBlock
+    MultiplexBlock, SimpleMathBlock
 
 
 class BlockNetwork:
@@ -110,14 +110,14 @@ if __name__ == '__main__':
     comparison_network = BlockNetwork()
     block_const_5 = ConstantBlock(value=5)
     block_const_3 = ConstantBlock(value=3)
-    block_compare_true = ComparisonBlockParameter(operator=">=")
+    block_const_4 = ConstantBlock(value=4)
+    block_compare_true = SimpleMathBlock(operator="-")
     block_compare_false = ComparisonBlockParameter(operator="<")
     comparison_network.add_block(block_compare_false, 0, True)
-    comparison_network.add_block(block_compare_true, 0, True)
-    comparison_network.add_block(block_const_5, 0)
+    comparison_network.add_block(block_compare_true, 0)
     comparison_network.add_block(block_const_3, 0)
-    comparison_network.add_block(block_const_5, 1)
     comparison_network.add_block(block_const_3, 1)
+    comparison_network.add_block(block_const_5, 1)
     JsonParser.write("network3.json", comparison_network)
     print(comparison_network.exec())
     new_comparison_network = JsonParser.read("network3.json")
