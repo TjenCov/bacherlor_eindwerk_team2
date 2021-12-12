@@ -106,14 +106,67 @@ class Board(tk.Frame):
 
     def getBoard(self):
         return self.board
+
+    def _createJsonString(self):
+        text = '\"height\": {0},\n' \
+               '\"width\": {1},\n' \
+               '\"entities\": [\n\t'.format(self.rows, self.columns)
+
+        for row in range(self.rows):
+            for column in range(self.columns):
+                tile = self.board[row][column]
+                if not len(tile) == 0:
+                    entity = '\n\t\t\t\"x\": {},\n\t\t\t\"y\": {},\n\t\t\t'.format(column, row)
+                    entity_description = '{\n\t\t\t\t'+'\"type\": \"{}\",\n\t\t\t\t\"extra\":[]'.format(tile[0]) + '\n\t\t\t\t}'
+                    entity = '\t{' + entity + '\"entity\": {}\n\t'.format(entity_description) + '\t}'
+                    if row == self.rows-1 and column == self.columns-1:
+                        text += entity + '\n\t'
+                    else:
+                        text += entity + ',\n\t'
+
+        return '{' + text + ']\n}'
+
+    def to_json(self, filename):
+        """
+        Parse board to json in provided location
+        :param filename: location where map needs to be saved to
+        :return: None
+        """
+
+        text = self._createJsonString()
+        with open(filename, 'w') as file:
+            file.write(text)
+
+    def load_json(self, filename):
+        import json
+        with open(filename) as file:
+            map = json.load(file)
+        rows = map['height']
+        columns = map['width']
+        board = []
+        for row in range(rows):
+            board.append([])
+            for column in range(columns):
+                board[row].append([])
+
+        for entity in map['entities']:
+            board[entity['x']][entity['y']].append(entity['entity']['type'])
+            board[entity['x']][entity['y']].append(entity['entity']['extra'])
+
+        self.board = board
+
+
 if __name__ == "__main__":
     root = tk.Tk()
 
-    board = Board(root, 8, 8)
+    board = Board(root,8, 8)
     board.pack(side="top", fill="both", expand="true", padx=4, pady=4)
     player1 = tk.PhotoImage(data=imagedata)
 
+    board.addObstacles("start", player1, (7, 7))
     board.addObstacles("finish", player1, (1, 1))
     board.removeObstacle((3,3))
     print(board.getBoard())
-    root.mainloop()
+    board.to_json('testLocation.json')
+    board.load_json('testLocation.json')
+    # root.mainloop()
