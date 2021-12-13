@@ -643,7 +643,12 @@ if __name__ == '__main__':
     path_result, all_steps = searcher.compute( **{"start":[6,2],"finish":[3,5]} )
     print()
     print("======PATH=====")
+    # De robot zal in de volgende blok in deze volgorde coordinaten aflopen, want dit is het gevonden pad.
     print(path_result)
     print()
     print("=======VISITED===")
+    # List of lists of coordinates (also lists)
+    # Usage: all_steps[x] gives a list of coordinates visited at step number x of the search algorithm
+    # coordinate=all_steps[x][y] then gives a specific coordinate that was visited
+    # coordinate[0/1] will then retrieve either x or y value
     print(all_steps)
