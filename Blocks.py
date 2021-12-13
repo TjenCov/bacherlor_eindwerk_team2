@@ -1,3 +1,4 @@
+import copy
 from abc import ABC, abstractmethod
 
 
@@ -17,7 +18,6 @@ def listToKwarg(args, keys):
     return dict
 
 
-
 """
 Abstract base block
 """
@@ -34,6 +34,7 @@ class Block(ABC):
     :param can_edit: parameters/input ports should not be changed after construction if this is false.
         This is not currently enforced.
     """
+
     def __init__(self, function, inputs, can_edit=True):
         self.function = function
         self.inputs = inputs
@@ -94,6 +95,7 @@ def power(base, exponent):
     :return: pow(base,exponent)
     """
     return pow(base, exponent)
+
 
 def division(teller, noemer):
     """
@@ -208,7 +210,7 @@ def multiplex(selection, **kwargs):
     return kwargs[str(selection)]
 
 
-def generic_math(operation,in1,in2):
+def generic_math(operation, in1, in2):
     """
     Does any of +,-,*,/
     :param operation: string that contains the operation.
@@ -227,15 +229,125 @@ def generic_math(operation,in1,in2):
         result = in1 / in2
     return int(result)
 
+
+def can_move(potential_obstacle_names):
+    """
+    Given the contents of a grid tile, checks if the player would be allowed to move there.
+    :param potential_obstacle_name: list of strings that names the content of the tile
+    :return: True if player can move there, False if not
+    """
+    if "obstacle" in potential_obstacle_names or "visited" in potential_obstacle_names:
+        return False
+    return True
+
+
+def BFS_step(grid, positions, paths):
+    visited = []
+    for pos in positions:
+        for possible_pos in [[pos[0], pos[1] + 1], [pos[0], pos[1] - 1], [pos[0] + 1, pos[1]], [pos[0] - 1, pos[1]]]:
+            if can_move(grid[possible_pos[0]][possible_pos[1]]):
+                grid[possible_pos[0]][possible_pos[1]].append("visited")
+                visited.append(possible_pos)
+                temp = copy.deepcopy(paths[str(pos)])
+                temp.append(possible_pos)
+                paths[str(possible_pos)] = temp
+    return grid, visited, paths
+
+
+def DFS_step(grid, positions, paths, fallbacks):
+    visited = []
+    moved = False
+    while moved == False:
+        for pos in positions:
+            for possible_pos in [[pos[0], pos[1] + 1], [pos[0], pos[1] - 1], [pos[0] + 1, pos[1]], [pos[0] - 1, pos[1]]]:
+                if can_move(grid[possible_pos[0]][possible_pos[1]]):
+                    moved = True
+                    fallbacks.append(possible_pos)
+                    grid[possible_pos[0]][possible_pos[1]].append("visited")
+                    visited.append(possible_pos)
+                    temp = copy.deepcopy(paths[str(pos)])
+                    temp.append(possible_pos)
+                    paths[str(possible_pos)] = temp
+                    return grid, visited, paths, fallbacks
+        if moved == False:
+            positions = [fallbacks[len(fallbacks)-1]]
+            fallbacks.pop()
+    return grid, visited, paths, fallbacks
+
+def find_first_grid(grid, to_find):
+    """
+    Finds the first occurrence of to_find in the grid. Should be used for unique things like "start"
+    :param grid: full game grid/board, list of lists of lists
+    :param to_find: object to find in string format, like "start"
+    :return: [x,y] of an occurrence of to_find
+    """
+    for x in range(len(grid)):
+        for y in range(len(grid[x])):
+            if to_find in grid[x][y]:
+                return [x, y]
+
+
+def search(search_alg, grid, start_pos, end_pos, stop_after=30):
+    """
+    Given a grid and search algorithm, finds a path from start_pos to end_pos
+    :param search_alg: String containing name of search algorithm ("BFS" or "DFS")
+    :param grid: Full grid to search on
+    :param start_pos: 2D start position (list of int)
+    :param end_pos: 2D end position (list of int)
+    :param stop_after: Stop the search after this many steps of search_alg
+    :return:
+        First element: list of coordinates containing found path
+        Second element: list of lists of coordinates: elements at index x are the coordinates visited at step x
+    """
+
+    # List of lists of coordinates (also lists)
+    # Usage: visited_steps[x] gives a list of coordinates visited at step number x of the search algorithm
+    # coordinate=visited_steps[x][y] then gives a specific coordinate that was visited
+    # coordinate[0/1] will then retrieve either x or y value
+    visited_steps = [[start_pos]]
+    finish_pos = end_pos
+
+    paths = {str(start_pos): [start_pos]}
+    grid[start_pos[0]][start_pos[1]].append("visited")
+    dfs_fallbacks = []
+    while stop_after > 0:
+        visited = []
+        if search_alg == "DFS":
+            grid, visited, paths, dfs_fallbacks = DFS_step(grid, visited_steps[len(visited_steps) - 1], paths,dfs_fallbacks)
+        elif search_alg == "BFS":
+            grid, visited, paths = BFS_step(grid, visited_steps[len(visited_steps) - 1], paths)
+
+        visited_steps.append(visited)
+        if finish_pos in visited:
+            return paths[str(finish_pos)], visited_steps
+        stop_after -= 1
+
+
 """
 Implemented blocks
 """
+
+
+class SearchBlock(Block):
+    def __init__(self, function=search, inputs=None, grid=None, stop_after=30, search_alg="BFS"):
+        if grid is None:
+            grid = []
+        if inputs is None:
+            inputs = ["start", "finish"]
+        super().__init__(function, inputs)
+        self.stop_after = stop_after
+        self.grid = grid
+        self.search_alg = search_alg
+
+    def compute(self, **kwargs):
+        return self.function(self.search_alg, self.grid, kwargs["start"], kwargs["finish"], self.stop_after)
 
 
 class SimpleMathBlock(Block):
     """
     Does any of +,*,-,/
     """
+
     def __init__(self, function=generic_math, inputs=None, operator="+"):
         """
         :param function: generic_math, should not be changed. If you want a different function, make a new block.
@@ -265,6 +377,7 @@ class MultiplexBlock(Block):
     """
     returns the value from the input port that has the same name as the value of selector input.
     """
+
     def __init__(self, function=multiplex, inputs=None):
         """
         By default, this creates a conditional where True and False are represented by 1 and 0
@@ -291,6 +404,7 @@ class ComparisonBlockParameter(Block):
     """
     Does a comparison between two values
     """
+
     def __init__(self, function=simple_comparison, inputs=None, operator="=="):
         """
         :param function: simple_comparison, should not be changed. If you want a different function, make a new block.
@@ -320,6 +434,7 @@ class PowerBlock(Block):
     """
     Calculates power of two inputs
     """
+
     def __init__(self, function=power, inputs=None):
         """
         :param function: power, should not be changed. If you want a different function, make a new block.
@@ -343,11 +458,11 @@ class PowerBlock(Block):
         return {'base': int1, 'exponent': int2}
 
 
-
 class PowerBlockParameter(Block):
     """
     Calculates power of an input and a parameter
     """
+
     def __init__(self, function=power, inputs=None, exponent=2):
         """
         :param function: power, should not be changed. If you want a different function, make a new block.
@@ -358,7 +473,6 @@ class PowerBlockParameter(Block):
             inputs = ["base"]
         super().__init__(function, inputs)
         self.exponent = exponent
-
 
     def compute(self, **kwargs):
         """
@@ -379,6 +493,7 @@ class PlusBlockAny(Block):
     """
     Adds any amount of numbers
     """
+
     def __init__(self, function=plus_any_args, inputs=None):
         """
         :param function: plus_any_args, should not be changed. If you want a different function, make a new block.
@@ -388,7 +503,6 @@ class PlusBlockAny(Block):
         if inputs is None:
             inputs = ["int1", "int2", "int3"]
         super().__init__(function, inputs)
-
 
     def compute(self, **kwargs):
         """
@@ -402,6 +516,7 @@ class ConstantBlock(Block):
     """
     Returns a value
     """
+
     def __init__(self, function=constant, inputs=None, value=0):
         """
         :param function: plus_any_args, should not be changed. If you want a different function, make a new block.
@@ -410,7 +525,6 @@ class ConstantBlock(Block):
         """
         super().__init__(function, inputs)
         self.value = value
-
 
     def compute(self, **kwargs):
         """
@@ -427,6 +541,7 @@ class MoveBlockParameter(Block):
     """
     Moves in 2D space
     """
+
     def __init__(self, function=move_parameter, inputs=None, direction="up", distance=1):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
@@ -461,6 +576,7 @@ class MoveBlockInput(Block):
     """
     Moves in 2D space
     """
+
     def __init__(self, function=move_parameter, inputs=None):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
@@ -468,7 +584,7 @@ class MoveBlockInput(Block):
         :return:
         """
         if inputs is None:
-            inputs = ["initial_coordinates","direction","distance"]
+            inputs = ["initial_coordinates", "direction", "distance"]
         super().__init__(function, inputs)
 
     def compute(self, **kwargs):
@@ -480,7 +596,8 @@ class MoveBlockInput(Block):
         :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
         """
         return self.function(
-            **{"distance": kwargs["distance"], "direction": kwargs["direction"], "initial": kwargs["initial_coordinates"]})
+            **{"distance": kwargs["distance"], "direction": kwargs["direction"],
+               "initial": kwargs["initial_coordinates"]})
 
 
 if __name__ == '__main__':
@@ -497,3 +614,36 @@ if __name__ == '__main__':
     moveupone = MoveBlockParameter()
     print(moveupone.compute(
         **{"initial_coordinates": [1, 1]}))
+
+    print()
+    print("=========MOVEMENT TEST=========")
+    print()
+    # Gebruikte grid is hieronder getekend. Werkelijke grid heeft hier rond ook nog eens obstakels , dus eigenlijk 8x8
+    # x = obstakel, o = open, B = begin, E = einde
+
+    # x o x x o x
+    # o o o o o o
+    # x o x x E x
+    # x o x x x x
+    # x o x x x x
+    # x B x x x x
+
+    grid = [
+        [["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"]],
+        [["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"]],
+        [["obstacle"], [], [], [], [], [], [], ["obstacle"]],
+        [["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"]],
+        [["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"]],
+        [["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"]],
+        [["obstacle"], ["obstacle"], [], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"]],
+        [["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"], ["obstacle"]]
+    ]
+
+    searcher = SearchBlock(grid=grid,stop_after=9999,search_alg="DFS")
+    path_result, all_steps = searcher.compute( **{"start":[6,2],"finish":[3,5]} )
+    print()
+    print("======PATH=====")
+    print(path_result)
+    print()
+    print("=======VISITED===")
+    print(all_steps)
