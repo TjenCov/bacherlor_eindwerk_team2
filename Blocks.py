@@ -87,6 +87,15 @@ Commands
 """
 
 
+def empty_function():
+    """
+    Power of base to exponent
+    :param base: base number of the power operation
+    :param exponent: exponent of the power operation
+    :return: pow(base,exponent)
+    """
+    return None
+
 def power(base, exponent):
     """
     Power of base to exponent
@@ -174,7 +183,6 @@ def simple_comparison(string_operator, left, right):
         result = left > right
     return int(result)
 
-
 def move_parameter(**kwargs):
     """
     Given an initial 2D position, moves from that position
@@ -195,6 +203,21 @@ def move_parameter(**kwargs):
     else:
         initial[1] += multiplier * distance
     return initial
+
+def move_parameter2(**kwargs):
+    """
+    Given an initial 2D position, moves from that position
+    :param **kwargs: needs to contain:
+        distance (int): distance to move
+        direction ("up", "down", "left", "right"): direction to move
+        initial (int,int): starting position to move from
+    :return: new list of length two
+    """
+    go_to_location = kwargs.get("go_to_location")
+    start_location = kwargs.get("start_location")
+    #TODO: Dit nog deftig doen
+
+    return go_to_location
 
 
 def multiplex(selection, **kwargs):
@@ -322,6 +345,38 @@ def search(search_alg, grid, start_pos, end_pos, stop_after=30):
             return paths[str(finish_pos)], visited_steps
         stop_after -= 1
 
+
+def compare_tags(to_find, **kwargs):
+    """
+    Comparers tags from different blocks to the imageBlock we want to find
+    :param to_find: The block we want to find, or something which is very much the same
+    :param **kwargs: Contains all the blocks we have to compare against to_finnd
+    :return: returns the name (cat, mouse, lion,...) of the block which had the best match
+    """
+    best_block = None
+    best_block_count = 1
+    blocks = [kwargs.get("block1"), kwargs.get("block2"), kwargs.get("block2")]
+
+
+    for block in blocks:
+        comparison_count = 0
+        for tag in block.getTags().getTags():
+            if tag in to_find.getTags().getTags():
+                comparison_count += 1
+
+        if comparison_count >= best_block_count:
+            best_block = block
+            best_block_count = comparison_count
+
+    return best_block.getName()
+
+
+class Tags():
+    def __init__(self, tags):
+        self.tags = tags
+
+    def getTags(self):
+        return self.tags
 
 """
 Implemented blocks
@@ -511,7 +566,6 @@ class PlusBlockAny(Block):
         """
         return self.function(**kwargs)
 
-
 class ConstantBlock(Block):
     """
     Returns a value
@@ -535,7 +589,6 @@ class ConstantBlock(Block):
 
     def getValue(self):
         return self.value
-
 
 class MoveBlockParameter(Block):
     """
@@ -571,7 +624,6 @@ class MoveBlockParameter(Block):
     def getDistance(self):
         return self.distance
 
-
 class MoveBlockInput(Block):
     """
     Moves in 2D space
@@ -598,6 +650,123 @@ class MoveBlockInput(Block):
         return self.function(
             **{"distance": kwargs["distance"], "direction": kwargs["direction"],
                "initial": kwargs["initial_coordinates"]})
+
+class ImageRegocnitionBlock(Block):
+    """
+    Moves in 2D space
+    """
+    def __init__(self, function=compare_tags, inputs=None, image_blocks=None, block_to_find=None):
+        """
+        :param function: move_parameter, should not be changed. If you want a different function, make a new block.
+        :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :return:
+        """
+        if inputs is None:
+            inputs = ["block1", "block2", "block3"]
+        super().__init__(function, inputs)
+        self.blocks = image_blocks
+        self.block_to_find = block_to_find
+
+    def compute(self, **kwargs):
+        """
+        :param **kwargs:
+            kwargs["initial"]: List of length two containing current 2D coordinates
+            kwargs["direction"]: any of "up","down","left","right"
+            kwargs["distance"]: distance to move
+        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        """
+        return self.function(
+            self.block_to_find, **{"block1": kwargs["block1"], "block2": kwargs["block2"], "block3": kwargs["block3"]})
+
+class ImageBlock(Block):
+    """
+    Moves in 2D space
+    """
+    def __init__(self, function=empty_function, inputs=None, path="", tags="", name=""):
+        """
+        :param function: move_parameter, should not be changed. If you want a different function, make a new block.
+        :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :return:
+        """
+        if inputs is None:
+            inputs = ["image_path"]
+        super().__init__(function, inputs)
+        self.tag = Tags(tags)
+        self.imag_path = path
+        self.name = name
+
+    def compute(self, **kwargs):
+        """
+        :param **kwargs:
+            kwargs["initial"]: List of length two containing current 2D coordinates
+            kwargs["direction"]: any of "up","down","left","right"
+            kwargs["distance"]: distance to move
+        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        """
+        return self
+
+    def getTags(self):
+        return self.tag
+
+    def getName(self):
+        return self.name
+
+class NavigationBlock(Block):
+    """
+    Moves in 2D space
+    """
+    def __init__(self, function=empty_function, inputs=None, search_algorithm=None, location=None):
+        """
+        :param function: move_parameter, should not be changed. If you want a different function, make a new block.
+        :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :return:
+        """
+        if inputs is None:
+            inputs = ["go_to_location"]
+        super().__init__(function, inputs)
+        self.go_to_location = location
+        self.algos = ["DFS", "BFS"]
+
+        if search_algorithm is not None:
+            self.function = search_algorithm
+
+    def compute(self, **kwargs):
+        """
+        :param **kwargs:
+            kwargs["initial"]: List of length two containing current 2D coordinates
+            kwargs["direction"]: any of "up","down","left","right"
+            kwargs["distance"]: distance to move
+        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        """
+        return self.function(
+            **{"go_to_location": kwargs["go_to_location"]})
+
+class MoveBlock(Block):
+    """
+    Moves in 2D space
+    """
+    def __init__(self, function=move_parameter, inputs=None, search_algorithm=None, start_location=None, go_to_location=None):
+        """
+        :param function: move_parameter, should not be changed. If you want a different function, make a new block.
+        :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :return:
+        """
+        if inputs is None:
+            inputs = ["start_location", "go_to_location"]
+        super().__init__(function, inputs)
+        self.start_location = start_location
+        self.go_to_location = go_to_location
+
+    def compute(self, **kwargs):
+        """
+        :param **kwargs:
+            kwargs["initial"]: List of length two containing current 2D coordinates
+            kwargs["direction"]: any of "up","down","left","right"
+            kwargs["distance"]: distance to move
+        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        """
+        return self.function(
+            **{"start_location": kwargs["start_location"], "go_to_location": kwargs["go_to_location"]})
 
 
 if __name__ == '__main__':

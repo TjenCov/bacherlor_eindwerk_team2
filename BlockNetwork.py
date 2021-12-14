@@ -1,6 +1,6 @@
 import JsonParser
 from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter, \
-    MultiplexBlock, SimpleMathBlock
+    MultiplexBlock, SimpleMathBlock, NavigationBlock, ImageBlock, ImageRegocnitionBlock, MoveBlock
 
 
 class BlockNetwork:
@@ -97,7 +97,7 @@ class BlockNetwork:
 
 
 if __name__ == '__main__':
-    move_network = BlockNetwork()
+    '''move_network = BlockNetwork()
     block_start_position = ConstantBlock(value=[2, 3])
     block_move_right_two = MoveBlockParameter(direction="right", distance=2)
     move_network.add_block(block_move_right_two, 0, True)
@@ -105,9 +105,9 @@ if __name__ == '__main__':
     JsonParser.write("network4.json", move_network)
     print(move_network.exec())
     new_move_network = JsonParser.read("network4.json")
-    print(new_move_network.exec())
+    print(new_move_network.exec())'''
 
-    comparison_network = BlockNetwork()
+    '''comparison_network = BlockNetwork()
     block_const_5 = ConstantBlock(value=5)
     block_const_3 = ConstantBlock(value=3)
     block_const_4 = ConstantBlock(value=4)
@@ -121,9 +121,9 @@ if __name__ == '__main__':
     JsonParser.write("network3.json", comparison_network)
     print(comparison_network.exec())
     new_comparison_network = JsonParser.read("network3.json")
-    print(new_comparison_network.exec())
+    print(new_comparison_network.exec())'''
 
-    conditional_network = BlockNetwork()
+    '''conditional_network = BlockNetwork()
     multiplexer_true = MultiplexBlock()
     multiplexer_false = MultiplexBlock()
     input1_val5 = ConstantBlock(value=5)
@@ -171,4 +171,39 @@ if __name__ == '__main__':
     output = network.exec()
     print(output)
     print(newoutput)
-    print('end')
+    print('end')'''
+
+    network = BlockNetwork()
+
+    block1 = ImageBlock(path="image_path", tags=["a", "b", "c"], name="kat")
+    block2 = ImageBlock(path="image_path", tags=["d", "e", "f"], name="muis")
+    block4 = ImageBlock(path="image_path", tags=["g", "h", "i"], name="olifant")
+    block3 = ImageBlock(path="image_path", tags=["a", "b", "i"], name="leeuw")
+
+    ir = ImageRegocnitionBlock(image_blocks=[block1, block2, block4], block_to_find=block3)
+
+    '''block_const_5 = ConstantBlock(value=5)
+    block_const_3 = ConstantBlock(value=3)
+    block_compare_true = PlusBlockAny()
+    network.add_block(block_compare_true, 0, True)
+    network.add_block(block_const_5, 0)
+    network.add_block(block_const_3, 0)'''
+
+    network.add_block(ir, 0, True)
+    network.add_block(block1, 0)
+    network.add_block(block2, 0)
+    network.add_block(block4, 0)
+    network.add_block(block3, 4)
+
+    start_position = ConstantBlock(value=[0, 0])
+
+
+
+
+    go_to_position = ConstantBlock(value=[2, 3])
+    nav_block = NavigationBlock(location=go_to_position)
+
+    move_block = MoveBlock(start_location=start_position, go_to_location=go_to_position)
+
+
+    network.exec()
