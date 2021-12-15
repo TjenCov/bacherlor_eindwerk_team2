@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+
+    <style>
+        table {
+          width: 500px;
+          margin: 2em auto;
+        }
+        th, td {
+          border: solid 1px lightgrey;
+          padding: 0.5em;
+        }
+
+        @keyframes first {
+            0% {background-color: #f1f1f1}
+            100% {background-color: #2196F3}
+        }
+
+        .cell1 {
+            animation-name: first;
+            animation-duration: 2s;
+            animation-fill-mode: forwards;
+            }
+
+        .cell2 {
+            animation-name: first;
+            animation-duration: 2s;
+            animation-delay: 2s;
+            animation-fill-mode: forwards;
+            }
+
+        .cell3 {
+            animation-name: first;
+            animation-duration: 2s;
+            animation-delay: 4s;
+            animation-fill-mode: forwards;
+        }
+    </style>
+
+</head>
+<body>
+    <table>
+        <tr>
+            <td>"test"</td>
+            <td>"test"</td>
+            <td class="cell3">"test"</td>
+            <td>"test"</td>
+            <td>"test"</td>
+        </tr>
+        <tr>
+            <td>"test"</td>
+            <td class="cell3">"test"</td>
+            <td class="cell2">"test"</td>
+            <td class="cell3">"test"</td>
+            <td>"test"</td>
+        </tr>
+        <tr>
+            <td class="cell3">"test"</td>
+            <td class="cell2">"test"</td>
+            <td class="cell1">"test"</td>
+            <td class="cell2">"test"</td>
+            <td class="cell3">"test"</td>
+        </tr>
+        <tr>
+            <td>"test"</td>
+            <td class="cell3">"test"</td>
+            <td class="cell2">"test"</td>
+            <td class="cell3">"test"</td>
+            <td>"test"</td>
+        </tr>
+        <tr>
+            <td>"test"</td>
+            <td>"test"</td>
+            <td class="cell3">"test"</td>
+            <td>"test"</td>
+            <td>"test"</td>
+        </tr>
+    </table>
+</body>
+</html>

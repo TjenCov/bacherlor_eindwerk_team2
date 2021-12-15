@@ -1,0 +1,33 @@
+table {
+  width: 500px;
+  margin: 2em auto;
+}
+th, td {
+  border: solid 1px lightgrey;
+  padding: 0.5em;
+}
+
+@keyframes first {
+    0% {background-color: #f1f1f1}
+    100% {background-color: #2196F3}
+}
+
+.cell1 {
+    animation-name: first;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    }
+
+.cell2 {
+    animation-name: first;
+    animation-duration: 2s;
+    animation-delay: 2s;
+    animation-fill-mode: forwards;
+    }
+
+.cell3 {
+    animation-name: first;
+    animation-duration: 2s;
+    animation-delay: 4s;
+    animation-fill-mode: forwards;
+}
