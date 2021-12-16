@@ -1,5 +1,5 @@
 from BlockNetwork import BlockNetwork
-from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter
+from Blocks import Block, PowerBlock, ConstantBlock, PlusBlockAny, MoveBlockParameter, ComparisonBlockParameter, CheckSolutionBlock
 
 def test_addition():
     network = BlockNetwork()
@@ -150,6 +150,56 @@ def test_comparison():
     print("\n#######################################################################################################\n")
 
 
+def test_check_solution_1():
+    network = BlockNetwork()
+
+    print("\n#######################################################################################################\n")
+    print("=== TESTING CHECKSOLUTION 15==15 ===")
+    block_add = PlusBlockAny()
+    block_const_5 = ConstantBlock(value=5)
+    block_const_10 = ConstantBlock(value=10)
+    block_checksolution = CheckSolutionBlock(true_result=15)
+
+    print("\t- Added adder block to network")
+    network.add_block(block_add, 0, True)
+    print("\t- Added constant 5 block to network")
+    network.add_block(block_const_5, 0)
+    print("\t- Added constant 10 block to network")
+    network.add_block(block_const_10, 0)
+    print("\t- Added solution checker block to network (res:15)")
+    network.add_block(block_checksolution, block_add.ID, True)
+    print("\t- Coupled adder block to solution checker block")
+    network.add_link(block_checksolution.getID(), block_add.getID())
+
+    # 15 == 15 dus expect True (dus 1)
+    print("EXPECTED OUTPUT: [1]", "\tNETWORK OUTPUT:", network.exec())
+    print("\n#######################################################################################################\n")
+#
+def test_check_solution_2():
+    network = BlockNetwork()
+
+    print("\n#######################################################################################################\n")
+    print("=== TESTING CHECKSOLUTION 15==23 ===")
+    block_add = PlusBlockAny()
+    block_const_5 = ConstantBlock(value=5)
+    block_const_10 = ConstantBlock(value=10)
+    block_checksolution = CheckSolutionBlock(true_result=23)
+
+    print("\t- Added adder block to network")
+    network.add_block(block_add, 0, True)
+    print("\t- Added constant 5 block to network")
+    network.add_block(block_const_5, block_add.ID)
+    print("\t- Added constant 10 block to network")
+    network.add_block(block_const_10, block_add.ID)
+    print("\t- Added solution checker block to network (res:15)")
+    network.add_block(block_checksolution, 0, True)
+    print("\t- Coupled adder block to solution checker block")
+    network.add_link(block_checksolution.getID(), block_add.getID())
+
+    # 15 != 23 dus expect False (dus 0)
+    print("EXPECTED OUTPUT: [0]", "\tNETWORK OUTPUT:", network.exec())
+    print("\n#######################################################################################################\n")
+
 if __name__ == '__main__':
     test_addition()
     test_removal_block_link()
@@ -157,5 +207,7 @@ if __name__ == '__main__':
     test_move()
     test_all()
     test_comparison()
+    test_check_solution_1()
+    test_check_solution_2()
 
 

@@ -769,6 +769,34 @@ class MoveBlock(Block):
             **{"start_location": kwargs["start_location"], "go_to_location": kwargs["go_to_location"]})
 
 
+class CheckSolutionBlock(Block):
+    """
+    returns true if the input value is the expected solution value
+    """
+
+    def __init__(self, function=simple_comparison, inputs=None, true_result=0):
+        """
+        By default, this creates a conditional where True and False are represented by 1 and 0
+        :param function: multiplex, should not be changed. If you want a different function, make a new block.
+        :param inputs: Should always contain "selector", can contain any amount of other strings
+        :return:
+        """
+        if inputs is None:
+            inputs = ["student_answer"]
+        super().__init__(function, inputs)
+        self.true_result = true_result
+
+    def compute(self, **kwargs):
+        """
+        :param **kwargs:
+            kwargs["selector"]: name of input port whose input will be given as output.
+            Any amount of other keys can be present in kwargs. These represent input ports, and the selector will pick
+            one of them.
+        :return: kwargs[kwargs["selector"]]
+        """
+        return self.function("==", kwargs["student_answer"], self.true_result)
+
+
 if __name__ == '__main__':
     block_plus = PowerBlock()
     block_const_3 = ConstantBlock(value=3)
