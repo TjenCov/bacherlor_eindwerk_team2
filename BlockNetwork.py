@@ -97,81 +97,7 @@ class BlockNetwork:
 
 
 if __name__ == '__main__':
-    '''move_network = BlockNetwork()
-    block_start_position = ConstantBlock(value=[2, 3])
-    block_move_right_two = MoveBlockParameter(direction="right", distance=2)
-    move_network.add_block(block_move_right_two, 0, True)
-    move_network.add_block(block_start_position, 0)
-    JsonParser.write("network4.json", move_network)
-    print(move_network.exec())
-    new_move_network = JsonParser.read("network4.json")
-    print(new_move_network.exec())'''
 
-    '''comparison_network = BlockNetwork()
-    block_const_5 = ConstantBlock(value=5)
-    block_const_3 = ConstantBlock(value=3)
-    block_const_4 = ConstantBlock(value=4)
-    block_compare_true = SimpleMathBlock(operator="-")
-    block_compare_false = ComparisonBlockParameter(operator="<")
-    comparison_network.add_block(block_compare_false, 0, True)
-    comparison_network.add_block(block_compare_true, 0)
-    comparison_network.add_block(block_const_3, 0)
-    comparison_network.add_block(block_const_3, 1)
-    comparison_network.add_block(block_const_5, 1)
-    JsonParser.write("network3.json", comparison_network)
-    print(comparison_network.exec())
-    new_comparison_network = JsonParser.read("network3.json")
-    print(new_comparison_network.exec())'''
-
-    '''conditional_network = BlockNetwork()
-    multiplexer_true = MultiplexBlock()
-    multiplexer_false = MultiplexBlock()
-    input1_val5 = ConstantBlock(value=5)
-    input2_val3 = ConstantBlock(value=3)
-    block_compare_true = ComparisonBlockParameter(operator="!=")
-    block_compare_false = ComparisonBlockParameter(operator="==")
-    condition_is_true = ConstantBlock(value="True")
-    condition_is_false = ConstantBlock(value="False")
-    conditional_network.add_block(multiplexer_true, 0, True)  # 0
-    conditional_network.add_block(multiplexer_false, 0, True)  # 1
-    conditional_network.add_block(block_compare_true, 0)  # 2
-    conditional_network.add_block(block_compare_false, 1)  # 3
-    conditional_network.add_block(input1_val5, 2)
-    conditional_network.add_block(input2_val3, 2)
-    conditional_network.add_block(input1_val5, 3)
-    conditional_network.add_block(input2_val3, 3)
-    conditional_network.add_block(condition_is_false, 0)
-    conditional_network.add_block(condition_is_false, 1)
-    conditional_network.add_block(condition_is_true, 0)
-    conditional_network.add_block(condition_is_true, 1)
-    JsonParser.write("network2.json", conditional_network)
-    print(conditional_network.exec())
-    new_conditional_network = JsonParser.read("network2.json")
-    print(new_conditional_network.exec())
-
-    network = BlockNetwork()
-    block_plus = PlusBlockAny()
-    block_power = PowerBlock()
-    block_const_3 = ConstantBlock(value=3)
-    block_const_2 = ConstantBlock(value=2)
-    block_const_5 = ConstantBlock(value=5)
-
-    network.add_block(block_plus, 0, True)
-    network.add_block(block_power, 0, True)
-    network.add_block(block_const_2, 0)
-    network.add_block(block_const_3, 0)
-    network.add_block(block_const_3, 1)
-    network.add_block(block_const_5, 1)
-    network.remove_link(0, 3)
-    network.add_link(0, 3)
-
-    JsonParser.write("network.json", network)
-    newnetwork = JsonParser.read("network.json")
-    newoutput = newnetwork.exec()
-    output = network.exec()
-    print(output)
-    print(newoutput)
-    print('end')'''
 
     network = BlockNetwork()
 
@@ -181,13 +107,6 @@ if __name__ == '__main__':
     block3 = ImageBlock(path="image_path", tags=["a", "b", "i"], name="leeuw")
 
     ir = ImageRegocnitionBlock(block_to_find=block3)
-
-    '''block_const_5 = ConstantBlock(value=5)
-    block_const_3 = ConstantBlock(value=3)
-    block_compare_true = PlusBlockAny()
-    network.add_block(block_compare_true, 0, True)
-    network.add_block(block_const_5, 0)
-    network.add_block(block_const_3, 0)'''
 
     network.add_block(ir, 0, True)
     network.add_block(block1, 0)

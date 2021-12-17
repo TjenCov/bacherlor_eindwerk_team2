@@ -380,22 +380,6 @@ class Tags():
 Implemented blocks
 """
 
-
-class SearchBlock(Block):
-    def __init__(self, function=search, inputs=None, grid=None, stop_after=30, search_alg="BFS"):
-        if grid is None:
-            grid = []
-        if inputs is None:
-            inputs = ["start", "finish"]
-        super().__init__(function, inputs)
-        self.stop_after = stop_after
-        self.grid = grid
-        self.search_alg = search_alg
-
-    def compute(self, **kwargs):
-        return self.function(self.search_alg, self.grid, kwargs["start"], kwargs["finish"], self.stop_after)
-
-
 class SimpleMathBlock(Block):
     """
     Does any of +,*,-,/
@@ -655,8 +639,10 @@ class ImageRegocnitionBlock(Block):
     """
     def __init__(self, function=compare_tags, inputs=None, block_to_find=None):
         """
-        :param function: move_parameter, should not be changed. If you want a different function, make a new block.
+        :param function: compare_tags, should not be changed. If you want a different function, make a new block.
         :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :param block_to_find: which image do you need to finc
+
         :return:
         """
         if inputs is None:
@@ -667,10 +653,10 @@ class ImageRegocnitionBlock(Block):
     def compute(self, **kwargs):
         """
         :param **kwargs:
-            kwargs["initial"]: List of length two containing current 2D coordinates
-            kwargs["direction"]: any of "up","down","left","right"
-            kwargs["distance"]: distance to move
-        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+            kwargs["block1"]: image block
+            kwargs["block2"]: image block
+            kwargs["block3"]: image block
+        :return:
         """
         return self.function(
             self.block_to_find, **{"block1": kwargs["block1"], "block2": kwargs["block2"], "block3": kwargs["block3"]})
@@ -683,6 +669,9 @@ class ImageBlock(Block):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
         :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :param path: path to the image.
+        :param tags: Class og tags.
+        :param name: String of the name of the image.
         :return:
         """
         if inputs is None:
@@ -694,11 +683,7 @@ class ImageBlock(Block):
 
     def compute(self, **kwargs):
         """
-        :param **kwargs:
-            kwargs["initial"]: List of length two containing current 2D coordinates
-            kwargs["direction"]: any of "up","down","left","right"
-            kwargs["distance"]: distance to move
-        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        :return:
         """
         return self
 
@@ -712,31 +697,35 @@ class NavigationBlock(Block):
     """
     Moves in 2D space
     """
-    def __init__(self, function=empty_function, inputs=None, search_algorithm=None, location=None):
+    def __init__(self, function=search, inputs=None, search_alg="BFS", location=None, grid=None, stop_after=30):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
         :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :param search_alg: DFS or BFS.
+        :param location: location of the exit.
+        :param grid: grid layout.
+        :param stop_after: max distance.
         :return:
         """
+        if grid is None:
+            grid = []
         if inputs is None:
-            inputs = ["go_to_location"]
+            inputs = ["start", "finish"]
         super().__init__(function, inputs)
+        self.stop_after = stop_after
+        self.grid = grid
         self.go_to_location = location
         self.algos = ["DFS", "BFS"]
+        self.search_alg = search_alg
 
-        if search_algorithm is not None:
-            self.function = search_algorithm
 
     def compute(self, **kwargs):
         """
         :param **kwargs:
-            kwargs["initial"]: List of length two containing current 2D coordinates
-            kwargs["direction"]: any of "up","down","left","right"
-            kwargs["distance"]: distance to move
-        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        :return:
         """
-        return self.function(
-            **{"go_to_location": kwargs["go_to_location"]})
+        return self.function(self.search_alg, self.grid, kwargs["start"], kwargs["finish"], self.stop_after)
+
 
 class MoveBlock(Block):
     """
@@ -746,6 +735,9 @@ class MoveBlock(Block):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
         :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
+        :param start_location: Start location.
+        :param go_to_location: exit location.
+        :param path: path to the exit.
         :return:
         """
         if inputs is None:
@@ -757,14 +749,10 @@ class MoveBlock(Block):
 
     def compute(self, **kwargs):
         """
-        :param **kwargs:
-            kwargs["initial"]: List of length two containing current 2D coordinates
-            kwargs["direction"]: any of "up","down","left","right"
-            kwargs["distance"]: distance to move
-        :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
+        :return:
         """
-        return self.function(
-            **{"start_location": kwargs["start_location"], "go_to_location": kwargs["go_to_location"], "path": kwargs["path"]})
+        return self.path
+
 
 
 class CheckSolutionBlock(Block):
