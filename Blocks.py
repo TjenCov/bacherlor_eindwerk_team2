@@ -214,8 +214,6 @@ def move_parameter2(**kwargs):
     :return: new list of length two
     """
     go_to_location = kwargs.get("go_to_location")
-    start_location = kwargs.get("start_location")
-    #TODO: Dit nog deftig doen
 
     return go_to_location
 
@@ -745,17 +743,18 @@ class MoveBlock(Block):
     """
     Moves in 2D space
     """
-    def __init__(self, function=move_parameter, inputs=None, search_algorithm=None, start_location=None, go_to_location=None):
+    def __init__(self, function=move_parameter2, inputs=None, start_location=None, go_to_location=None, path=None):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
         :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
         :return:
         """
         if inputs is None:
-            inputs = ["start_location", "go_to_location"]
+            inputs = ["start_location", "go_to_location", 'path']
         super().__init__(function, inputs)
         self.start_location = start_location
         self.go_to_location = go_to_location
+        self.path = path
 
     def compute(self, **kwargs):
         """
@@ -766,7 +765,7 @@ class MoveBlock(Block):
         :return: kwargs["initial"] moved in direction kwargs["direction"] by kwargs["distance"] units
         """
         return self.function(
-            **{"start_location": kwargs["start_location"], "go_to_location": kwargs["go_to_location"]})
+            **{"start_location": kwargs["start_location"], "go_to_location": kwargs["go_to_location"], "path": kwargs["path"]})
 
 
 class CheckSolutionBlock(Block):
