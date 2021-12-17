@@ -653,7 +653,7 @@ class ImageRegocnitionBlock(Block):
     """
     Moves in 2D space
     """
-    def __init__(self, function=compare_tags, inputs=None, image_blocks=None, block_to_find=None):
+    def __init__(self, function=compare_tags, inputs=None, block_to_find=None):
         """
         :param function: move_parameter, should not be changed. If you want a different function, make a new block.
         :param inputs: Should always be None (= default), as the compute function here relies on keyworded names.
@@ -662,7 +662,6 @@ class ImageRegocnitionBlock(Block):
         if inputs is None:
             inputs = ["block1", "block2", "block3"]
         super().__init__(function, inputs)
-        self.blocks = image_blocks
         self.block_to_find = block_to_find
 
     def compute(self, **kwargs):

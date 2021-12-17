@@ -180,7 +180,7 @@ if __name__ == '__main__':
     block4 = ImageBlock(path="image_path", tags=["g", "h", "i"], name="olifant")
     block3 = ImageBlock(path="image_path", tags=["a", "b", "i"], name="leeuw")
 
-    ir = ImageRegocnitionBlock(image_blocks=[block1, block2, block4], block_to_find=block3)
+    ir = ImageRegocnitionBlock(block_to_find=block3)
 
     '''block_const_5 = ConstantBlock(value=5)
     block_const_3 = ConstantBlock(value=3)
@@ -194,16 +194,5 @@ if __name__ == '__main__':
     network.add_block(block2, 0)
     network.add_block(block4, 0)
     network.add_block(block3, 4)
-
-    start_position = ConstantBlock(value=[0, 0])
-
-
-
-
-    go_to_position = ConstantBlock(value=[2, 3])
-    nav_block = NavigationBlock(location=go_to_position)
-
-    move_block = MoveBlock(start_location=start_position, go_to_location=go_to_position)
-
 
     network.exec()
